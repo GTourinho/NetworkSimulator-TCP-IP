@@ -8,7 +8,7 @@ class AppLayer:
         self.serversocket.listen(5)
         self.server = server
     def listen(self):
-        #Wait for client message
+        #Wait for client message then handshake
         (clientsocket, address) = self.serversocket.accept()
         msg = clientsocket.recv(11).decode()
         #New client, generate id

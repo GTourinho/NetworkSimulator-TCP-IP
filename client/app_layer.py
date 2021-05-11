@@ -6,6 +6,7 @@ class AppLayer:
     #Client id
     def get_id(self):
         mysock = socket(AF_INET, SOCK_STREAM)
+        #Handshaking
         mysock.connect(('127.0.0.1', 9000))
         msg_id = 'get_id'
         mysock.send(msg_id.encode())
@@ -15,17 +16,18 @@ class AppLayer:
     #Send message to server
     def send_receive(self, msg):
         mysock = socket(AF_INET, SOCK_STREAM)
+        #Handshaking
         mysock.connect(('127.0.0.1', 9000))
         #Send char + id
-        if msg[0] == 'send':
+        if msg[0] == 'ping':
             mysock.send(msg[1][0].encode() + self.id.encode())
         #Send "receive back last char sent" request
-        elif msg[0] == 'receive':
+        elif msg[0] == 'recover':
             msg[0] = 're' + self.id
             mysock.send(msg[0].encode())
         #Receive back char
         data = mysock.recv(1)
-        print('Caractere: ', data.decode())
+        print('Echo:', data.decode())
         mysock.close()
     
 
