@@ -9,7 +9,7 @@ https://user-images.githubusercontent.com/41840640/118033893-b7080600-b33f-11eb-
 1. Este trabalho objetiva promover um entendimento aprofundado do funcionamento e importância das pilhas de protocolos no estudo de redes de computadores.
 2. Este sistema simula uma aplicação, serviços oferecidos por cada camada e as interfaces entre elas.
 3. A aplicação funciona em dois modos:
-- Modo resposta (/ping)
+- Modo resposta
 - Modo recuperação
 
 ## Prerequisitos ⚙️
@@ -55,7 +55,6 @@ https://user-images.githubusercontent.com/41840640/118033893-b7080600-b33f-11eb-
 
 - [Gabriel Tourinho](https://github.com/GTourinho/)
 - [Paulo Bomfim](https://github.com/phbomfim/)
-- []()
-- []()
+- [Matheus Nishimoto](https://github.com/matheruo/)
 
 *Universidade Federal da Bahia - 2021.1 - MATA59 - Redes de Computadores*
