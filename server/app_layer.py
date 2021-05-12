@@ -11,6 +11,7 @@ class AppLayer:
         #Wait for client message then handshake
         (clientsocket, address) = self.serversocket.accept()
         msg = clientsocket.recv(11).decode()
+        print(msg)
         #New client, generate id
         if msg == 'get_id':
             self.server.clients_count += 1
