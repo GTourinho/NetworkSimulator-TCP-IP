@@ -2,7 +2,7 @@
 
 ##### <div align="center">Simulador de aplicação cliente/servidor </div>
 
-<img src="https://media.giphy.com/media/3KVhhzvYKS9Cc55eNR/giphy.gif" width="100%" height="100%" />
+https://user-images.githubusercontent.com/41840640/118033893-b7080600-b33f-11eb-8e28-e8693dc60705.mp4
 
 ## Notas do Projeto 📜
 
