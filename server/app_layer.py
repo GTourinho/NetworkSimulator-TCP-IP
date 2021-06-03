@@ -1,28 +1,25 @@
-from socket import *
+import trans_layer
 
 class AppLayer:
     #Begin server on port 9000
     def __init__(self, server):
-        self.serversocket = socket(AF_INET, SOCK_STREAM)
-        self.serversocket.bind(('localhost',9000))
-        self.serversocket.listen(5)
+        self.serversocket = trans_layer.TransLayer()
         self.server = server
     def listen(self):
         #Wait for client message then handshake
-        (clientsocket, address) = self.serversocket.accept()
-        msg = clientsocket.recv(11).decode()
+        (client, address) = self.serversocket.handshake()
+        msg = self.serversocket.receivemsg(client, 11).decode()
         print(msg)
         #New client, generate id
         if msg == 'get_id':
             self.server.clients_count += 1
             self.server.lastReceivedByClient.append(' ')
-            clientsocket.sendall(str(self.server.clients_count).encode())
+            self.serversocket.sendmsg(client, str(self.server.clients_count).encode())
         #Recover last char sent by client
         elif 're' in msg:
-            clientsocket.sendall(self.server.lastReceivedByClient[int(msg[2:])].encode())
+            self.serversocket.sendmsg(client, self.server.lastReceivedByClient[int(msg[2:])].encode())
         #Send received char back to client
         else:
             self.server.lastReceivedByClient[int(msg[1:])] = msg[:1]
-            clientsocket.sendall(msg.encode())
-        clientsocket.shutdown(SHUT_WR)
-
+            self.serversocket.sendmsg(client, msg.encode())
+        self.serversocket.close(client)
