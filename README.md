@@ -2,14 +2,14 @@
 
 ##### <div align="center">Simulador de aplicação cliente/servidor </div>
 
-![gif](https://media.giphy.com/media/3KVhhzvYKS9Cc55eNR/giphy.gif)
+https://user-images.githubusercontent.com/41840640/118033893-b7080600-b33f-11eb-8e28-e8693dc60705.mp4
 
 ## Notas do Projeto 📜
 
 1. Este trabalho objetiva promover um entendimento aprofundado do funcionamento e importância das pilhas de protocolos no estudo de redes de computadores.
 2. Este sistema simula uma aplicação, serviços oferecidos por cada camada e as interfaces entre elas.
 3. A aplicação funciona em dois modos:
-- Modo resposta (/ping)
+- Modo resposta
 - Modo recuperação
 
 ## Prerequisitos ⚙️
@@ -55,7 +55,6 @@
 
 - [Gabriel Tourinho](https://github.com/GTourinho/)
 - [Paulo Bomfim](https://github.com/phbomfim/)
-- []()
-- []()
+- [Matheus Nishimoto](https://github.com/matheruo/)
 
 *Universidade Federal da Bahia - 2021.1 - MATA59 - Redes de Computadores*
