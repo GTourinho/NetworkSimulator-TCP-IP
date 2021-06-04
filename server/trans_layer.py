@@ -8,18 +8,24 @@ class TransLayer:
     def handshake(self):
         return self.socket.accept()
     def receivemsg(self, client, n):
+        messageTable = [None] * n
         byteMessage = bytearray()
         done = False
         while not done:
             packet = client.recv(3)
+            message, checksum, ackId = packet
             #if endmessage
-            if packet[0] == 42 and packet[1] == 42 and packet[2] == 42:
+            if message == 42 and checksum == 42 and ackId == 42:
                 done = True
             #validate the checksum
-            elif packet[0] + packet[1] == 255:
-                byteMessage.insert(packet[2], packet[0])
-                ack = chr(packet[2]).encode()
+            elif message + checksum == 255:
+                messageTable[ackId] = message
+                ack = chr(ackId).encode()
                 self.sendmsg(client, ack)
+        for byte in messageTable:
+            if byte == None:
+                break
+            byteMessage.append(byte)
         return byteMessage
     def sendmsg(self, client, msg):
         client.sendall(msg)
