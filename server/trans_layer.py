@@ -13,12 +13,17 @@ class TransLayer:
         done = False
         while not done:
             packet = client.recv(3)
-            message, checksum, ackId = packet
+            ackId, checksum, message = packet       
+            bytesum = message + ackId
+            while bytesum > 127:
+                bytesum += 1
+                bytesum = bytesum >> 1
+            print('message:',message, 'checksum:',checksum)
             #if endmessage
             if message == 42 and checksum == 42 and ackId == 42:
                 done = True
             #validate the checksum
-            elif message + checksum == 255:
+            elif bytesum + checksum == 255:
                 messageTable[ackId] = message
                 ack = chr(ackId).encode()
                 self.sendmsg(client, ack)

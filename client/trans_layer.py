@@ -25,20 +25,36 @@ class TransLayer:
                     done = False
                     if currTime > timeout_table[id]:
                         timeout_table[id] = perf_counter() + 0.00001
-                        #checksum is the inverse of the byte
-                        checksum = ~byte
-                        if random() > 0.5:
-                            packet = byte.to_bytes(1, byteorder ='little', signed = True)
+                        #checksum for the packet                   
+                        bytesum = id + byte
+                        while bytesum > 127:
+                            bytesum += 1
+                            bytesum = bytesum >> 1
+                        checksum = ~bytesum
+                        print('char:', byte, 'checksum:', checksum)
+
+                        #add id, checksum and byte with random chance of corrupting
+                        if random() < 0.8:
+                            packet = id.to_bytes(1, byteorder ='little', signed = True)
                         else:
-                            packet = randint(0,127).to_bytes(1, byteorder ='little', signed = True)
-                        packet += checksum.to_bytes(1, byteorder ='little', signed = True)
-                        packet += id.to_bytes(1, byteorder ='little', signed = True)
+                            packet = randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
+                        if random() < 0.8:
+                            packet += checksum.to_bytes(1, byteorder ='little', signed = True)
+                        else:
+                            packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
+                        if random() < 0.8:
+                            packet += byte.to_bytes(1, byteorder ='little', signed = True)
+                        else:
+                            packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
+                        
                         self.socket.send(packet)
+
                 #check if any ack received, then update ack table
                 received_ack, _, _ = select.select([self.socket], [], [], ackTimeout)
                 if received_ack:
                     byteId = self.socket.recv(1)
                     self.ack_table[int.from_bytes(byteId, 'little')] = True
+                    
         endMessage = '***'
         self.socket.send(endMessage.encode())
     def receivemsg(self, n):
