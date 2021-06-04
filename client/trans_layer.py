@@ -31,7 +31,6 @@ class TransLayer:
                             bytesum += 1
                             bytesum = bytesum >> 1
                         checksum = ~bytesum
-                        print('char:', byte, 'checksum:', checksum)
 
                         #add id, checksum and byte with random chance of corrupting
                         if random() < 0.8:
@@ -46,19 +45,28 @@ class TransLayer:
                             packet += byte.to_bytes(1, byteorder ='little', signed = True)
                         else:
                             packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
-                        
                         self.socket.send(packet)
 
                 #check if any ack received, then update ack table
                 received_ack, _, _ = select.select([self.socket], [], [], ackTimeout)
                 if received_ack:
-                    byteId = self.socket.recv(1)
-                    self.ack_table[int.from_bytes(byteId, 'little')] = True
-                    
+                    checksum, byteId = self.socket.recv(2)
+                    if byteId + checksum == 255:
+                        self.ack_table[byteId] = True
+
         endMessage = '***'
         self.socket.send(endMessage.encode())
+
     def receivemsg(self, n):
-        msg = self.socket.recv(n)
-        return msg
+        done = False    
+        while not done:
+            checksum, msg = self.socket.recv(n)
+            if msg + checksum == 255:
+                done = True
+                #ack needs no specific value
+                ack = msg.to_bytes(1, byteorder ='little', signed = True)
+                self.socket.send(ack)
+        return msg.to_bytes(1, byteorder ='little', signed = True)
+
     def close(self):
         self.socket.close()

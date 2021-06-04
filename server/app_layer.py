@@ -21,5 +21,5 @@ class AppLayer:
         #Send received char back to client
         else:
             self.server.lastReceivedByClient[int(msg[1:])] = msg[0]
-            self.serversocket.sendmsg(client, msg.encode())
+            self.serversocket.sendmsg(client, msg[0].encode())
         self.serversocket.close(client)

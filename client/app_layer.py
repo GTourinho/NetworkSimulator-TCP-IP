@@ -13,6 +13,7 @@ class AppLayer:
         my_id = mysock.receivemsg(9).decode()
         mysock.close()
         return my_id
+        
     #Send message to server
     def send_receive(self, msg):
         mysock = trans_layer.TransLayer()
@@ -25,6 +26,6 @@ class AppLayer:
             msg[0] = 're' + self.id
             mysock.sendmsg(msg[0].encode())
         #Receive back char
-        data = mysock.receivemsg(1)
+        data = mysock.receivemsg(2)
         print('Echo:', data.decode())
         mysock.close()
