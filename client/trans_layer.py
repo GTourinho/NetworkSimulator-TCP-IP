@@ -1,18 +1,43 @@
 from socket import *
+from time import perf_counter
+import select
+
 
 class TransLayer:
     def __init__(self):
-        #TCP
         self.socket = socket(AF_INET, SOCK_STREAM)
+        self.ack_table = []
     def handshake(self, ip, port):
         self.socket.connect((ip, port))
+    #Selective-Repeat
     def sendmsg(self, message):
-        self.socket.send(message)
+        timeout_table = [0] * len(message)
+        self.ack_table = [False] * len(message)
+        done = False
+        ackTimeout = 0.01
+        while not done:
+            done = True
+            for id, byte in enumerate(message):
+                currTime = perf_counter()
+                #if not ack and timed out
+                if self.ack_table[id] == False and currTime > timeout_table[id]:
+                    done = False
+                    timeout_table[id] = perf_counter() + 1
+                    #checksum is the inverse of the byte
+                    checksum = ~byte
+                    packet = byte.to_bytes(1, byteorder ='little', signed = True)
+                    packet += checksum.to_bytes(1, byteorder ='little', signed = True)
+                    packet += id.to_bytes(1, byteorder ='little', signed = True)
+                    self.socket.send(packet)
+                #check if any ack received, then update ack table
+                received_ack, _, _ = select.select([self.socket], [], [], ackTimeout)
+                if received_ack:
+                    byteId = self.socket.recv(1)
+                    self.ack_table[int.from_bytes(byteId, 'little')] = True
+        endMessage = '***'
+        self.socket.send(endMessage.encode())
     def receivemsg(self, n):
-        return self.socket.recv(n)
+        msg = self.socket.recv(n)
+        return msg
     def close(self):
         self.socket.close()
-
-
-
-
