@@ -1,6 +1,5 @@
 from socket import *
 from random import randint
-import struct
 
 #This is just where the (real socket of) simulator is running
 s = ('127.0.0.1',9000)
@@ -43,10 +42,7 @@ class LinkLayer:
             originIp = packet[3:18]
             self.arp_table[originIp] = originMac
 
-        if destinyMac == self.myMac:
-            return packet
-
-        elif destinyMac == 'FF:FF:FF:FF:FF:FF':
+        if destinyMac == self.myMac or destinyMac == 'FF:FF:FF:FF:FF:FF':
             return packet
 
         self.close(client)

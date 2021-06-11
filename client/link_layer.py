@@ -1,6 +1,5 @@
 from socket import *
 from random import randint
-import struct
 
 #This is just where the (real socket of) simulator is running
 s = ('127.0.0.1',9000)
@@ -13,14 +12,13 @@ class LinkLayer:
 
     def handshake(self):
         self.socket = socket(AF_INET, SOCK_STREAM)
-        self.socket.connect(('127.0.0.1', 9000))
+        self.socket.connect(s)
 
     def randomMacGenerator(self):
         return "%02x:%02x:%02x:%02x:%02x:%02x" % (randint(0, 255), randint(0, 255),
                              randint(0, 255), randint(0, 255),
                              randint(0, 255),
                              randint(0, 255))
-
 
     def send(self, packet):
         destinyIp = packet[17:]

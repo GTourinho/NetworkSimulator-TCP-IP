@@ -3,9 +3,6 @@ from socket import *
 import struct
 import link_layer
 
-#This is just where the (real socket of) simulator is running
-s = ('127.0.0.1',9000)
-
 class NetworkLayer:
     def __init__(self):
         self.myIp = self.randomIpGenerator()
