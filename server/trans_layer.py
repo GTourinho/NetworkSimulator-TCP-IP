@@ -2,21 +2,25 @@ from socket import *
 import select
 from random import random
 from random import randint
+import network_layer
 
 class TransLayer:
     def __init__(self):
-        self.socket = socket(AF_INET, SOCK_STREAM)
-        self.socket.bind(('localhost',9000))
-        self.socket.listen(5)
+        self.socket = network_layer.NetworkLayer()
+
     def handshake(self):
-        return self.socket.accept()
+        return self.socket.handshake()
+
     def receivemsg(self, client, n):
         messageTable = [None] * n
         byteMessage = bytearray()
         done = False
         while not done:
-            packet = client.recv(3)
-            ackId, checksum, message = packet       
+            packet = self.socket.receive(client)
+            if packet is None: return None
+            packet, originIp = packet
+            if packet == b'get': continue
+            ackId, checksum, message = packet     
             bytesum = message + ackId
             while bytesum > 127:
                 bytesum += 1
@@ -28,14 +32,14 @@ class TransLayer:
             elif bytesum + checksum == 255:
                 messageTable[ackId] = message
                 ack = chr(ackId).encode()
-                self.sendack(client, ack)
+                self.sendack(client, ack, originIp)
         for byte in messageTable:
             if byte == None:
                 break
             byteMessage.append(byte)
-        return byteMessage
+        return byteMessage, originIp
 
-    def sendack(self, client, msg):
+    def sendack(self, client, msg, destinyIp):
         msg = int.from_bytes(msg, 'little', signed = True)
         checksum = ~msg
         if random() < 0.8:
@@ -46,10 +50,9 @@ class TransLayer:
             packet += msg.to_bytes(1, byteorder ='little', signed = True)
         else:
             packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
-        client.sendall(packet)
+        self.socket.send(client, packet, destinyIp)
 
-
-    def sendmsg(self, client, msg):
+    def sendmsg(self, client, msg, destinyIp):
         ackTimeout = 0.001
         done = False
         msg = int.from_bytes(msg, 'little', signed = True)
@@ -63,12 +66,12 @@ class TransLayer:
                 packet += msg.to_bytes(1, byteorder ='little', signed = True)
             else:
                 packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)    
-            received_ack, _, _ = select.select([self.socket], [], [], ackTimeout)
+            received_ack, _, _ = select.select([self.socket.socket], [], [], ackTimeout)
             try:
-                client.sendall(packet)
+                self.socket.send(client, packet, destinyIp)
             except:
                 done = True
             if received_ack: done = True
             
     def close(self, client):
-        client.shutdown(SHUT_WR)
+        self.socket.close(client)

@@ -1,17 +1,23 @@
-from socket import *
 from time import perf_counter
 import select
 from random import random
 from random import randint
+import network_layer
 
 class TransLayer:
     def __init__(self):
-        self.socket = socket(AF_INET, SOCK_STREAM)
+        self.networkLayer = network_layer.NetworkLayer()
         self.ack_table = []
-    def handshake(self, ip, port):
-        self.socket.connect((ip, port))
+        
+    def handshake(self):
+        self.networkLayer.handshake()
+
     #Selective-Repeat
-    def sendmsg(self, message):
+    def sendmsg(self, message, destinyIp):
+        if destinyIp.decode() == '255.255.255.255':
+            getAddrMsg = 'get'
+            self.networkLayer.send(getAddrMsg.encode(), destinyIp)
+            packet, destinyIp = self.networkLayer.receive()
         timeout_table = [0] * len(message)
         self.ack_table = [False] * len(message)
         done = False
@@ -45,28 +51,31 @@ class TransLayer:
                             packet += byte.to_bytes(1, byteorder ='little', signed = True)
                         else:
                             packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)
-                        self.socket.send(packet)
+                        self.networkLayer.send(packet, destinyIp)
 
                 #check if any ack received, then update ack table
-                received_ack, _, _ = select.select([self.socket], [], [], ackTimeout)
+                received_ack, _, _ = select.select([self.networkLayer.socket], [], [], ackTimeout)
                 if received_ack:
-                    checksum, byteId = self.socket.recv(2)
+                    packet, originIp = self.networkLayer.receive()
+
+                    checksum, byteId = packet
                     if byteId + checksum == 255:
                         self.ack_table[byteId] = True
 
         endMessage = '***'
-        self.socket.send(endMessage.encode())
+        self.networkLayer.send(endMessage.encode(), destinyIp)
 
-    def receivemsg(self, n):
+    def receivemsg(self):
         done = False    
         while not done:
-            checksum, msg = self.socket.recv(n)
+            packet = self.networkLayer.receive()
+            packet, originIp = self.networkLayer.receive()
+            checksum, msg = packet
             if msg + checksum == 255:
                 done = True
-                #ack needs no specific value
                 ack = msg.to_bytes(1, byteorder ='little', signed = True)
-                self.socket.send(ack)
-        return msg.to_bytes(1, byteorder ='little', signed = True)
+                self.networkLayer.send(ack, originIp)
+        return msg.to_bytes(1, byteorder ='little', signed = True), originIp
 
     def close(self):
-        self.socket.close()
+        self.networkLayer.close()
