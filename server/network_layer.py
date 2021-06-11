@@ -1,6 +1,7 @@
-from socket import *
 from random import randint
+from socket import *
 import struct
+import link_layer
 
 #This is just where the (real socket of) simulator is running
 s = ('127.0.0.1',9000)
@@ -8,12 +9,11 @@ s = ('127.0.0.1',9000)
 class NetworkLayer:
     def __init__(self):
         self.myIp = self.randomIpGenerator()
-        self.socket = socket(AF_INET, SOCK_STREAM)
-        self.socket.bind(s)
-        self.socket.listen(5)   
+        print('Server Ip:', self.myIp)
+        self.linkLayer = link_layer.LinkLayer()
 
     def handshake(self):
-        return self.socket.accept()
+        return self.linkLayer.handshake()
 
     def randomIpGenerator(self):
         myip = inet_ntoa(struct.pack('>I', randint(1, 0xffffffff)))
@@ -25,10 +25,10 @@ class NetworkLayer:
         datagram = self.myIp.encode()
         datagram += destinyIp
         packet += datagram
-        client.sendall(packet)
+        self.linkLayer.send(client, packet)
 
     def receive(self, client):
-        packet = client.recv(33)
+        packet = self.linkLayer.receive(client)
         packet, datagram = packet[:3], packet[3:33]
         originIp, destinyIp = datagram[:15], datagram[15:].decode()
         if destinyIp == self.myIp:
@@ -41,4 +41,4 @@ class NetworkLayer:
         return None    
 
     def close(self, client):
-        client.shutdown(SHUT_WR)
+        self.linkLayer.close(client)

@@ -54,7 +54,7 @@ class TransLayer:
                         self.networkLayer.send(packet, destinyIp)
 
                 #check if any ack received, then update ack table
-                received_ack, _, _ = select.select([self.networkLayer.socket], [], [], ackTimeout)
+                received_ack, _, _ = select.select([self.networkLayer.linkLayer.socket], [], [], ackTimeout)
                 if received_ack:
                     packet, originIp = self.networkLayer.receive()
 

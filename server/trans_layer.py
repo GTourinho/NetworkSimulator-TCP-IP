@@ -66,7 +66,7 @@ class TransLayer:
                 packet += msg.to_bytes(1, byteorder ='little', signed = True)
             else:
                 packet += randint(-127,127).to_bytes(1, byteorder ='little', signed = True)    
-            received_ack, _, _ = select.select([self.socket.socket], [], [], ackTimeout)
+            received_ack, _, _ = select.select([self.socket.linkLayer.socket], [], [], ackTimeout)
             try:
                 self.socket.send(client, packet, destinyIp)
             except:
