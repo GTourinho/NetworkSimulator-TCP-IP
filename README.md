@@ -51,7 +51,7 @@ https://user-images.githubusercontent.com/41840640/118033893-b7080600-b33f-11eb-
 
 ```$ recover ```
 
-## E como funciona o programa funciona por trás? 🤔
+## E como o programa funciona por trás? 🤔
 
 - O nosso programa é iniciado na camada de aplicação e automaticamente, em todas as outras.
 - A aplicação proporciona ao servidor/cliente endereços de IP's e MAC próprios, gerados aleatoriamente.
